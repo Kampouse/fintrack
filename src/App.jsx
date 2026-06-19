@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Plus, X, TrendingUp, ChevronLeft, Trash2, Pencil } from "lucide-react";
-import { getQuote, getQuotes, CRYPTO_SYMBOLS } from "./api.js";
+import { getQuote, getQuotes, CRYPTO_SYMBOLS, tokenIcon } from "./api.js";
 
 const TX_KEY = "fintrack_transactions";
 const OLD_KEY = "fintrack_positions"; // migrate from old format
@@ -693,6 +693,44 @@ function PositionDetail({
   );
 }
 
+// --- Token Icon (CMC CDN, with fallback to initials) ---
+function TokenIcon({ symbol, size = 24 }) {
+  const [err, setErr] = useState(false);
+  const src = tokenIcon(symbol, 64);
+  const label = labelFromSymbol(symbol);
+  if (!src || err) {
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          background: "var(--lime-dim)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: size * 0.4,
+          fontWeight: 700,
+          color: "var(--lime)",
+          flexShrink: 0,
+        }}
+      >
+        {label.slice(0, 4)}
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={label}
+      width={size}
+      height={size}
+      onError={() => setErr(true)}
+      style={{ borderRadius: "50%", flexShrink: 0, display: "block" }}
+    />
+  );
+}
+
 function Metric({ label, value, color }) {
   return (
     <div>
@@ -935,11 +973,16 @@ function AddSheet({ onClose, onSave, preselect }) {
                     transition: "all 0.15s",
                   }}
                 >
-                  <div style={{ fontSize: "14px", fontWeight: 600 }}>
-                    {c.label}
-                  </div>
-                  <div style={{ fontSize: "11px", color: "var(--text-dim)" }}>
-                    {c.name}
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <TokenIcon symbol={c.symbol} size={20} />
+                    <div>
+                      <div style={{ fontSize: "14px", fontWeight: 600 }}>
+                        {c.label}
+                      </div>
+                      <div style={{ fontSize: "11px", color: "var(--text-dim)" }}>
+                        {c.name}
+                      </div>
+                    </div>
                   </div>
                 </button>
               ))}
@@ -948,7 +991,8 @@ function AddSheet({ onClose, onSave, preselect }) {
         )}
 
         {preselect && (
-          <div style={{ ...card, padding: "12px 14px", marginBottom: "16px" }}>
+          <div style={{ ...card, padding: "12px 14px", marginBottom: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <TokenIcon symbol={symbol} size={28} />
             <span style={{ fontSize: "16px", fontWeight: 600 }}>
               {labelFromSymbol(symbol)}
             </span>
