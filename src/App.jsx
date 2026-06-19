@@ -177,18 +177,30 @@ export default function App() {
   // --- render ---
   if (detailSymbol) {
     return (
-      <PositionDetail
-        symbol={detailSymbol}
-        txs={txs}
-        quote={quotes[detailSymbol]}
-        onBack={() => setDetailSymbol(null)}
-        onRemoveLot={removeLot}
-        onEditLot={(lot) => setEditLot(lot)}
-        onAddLot={() => {
-          setDetailSymbol(null);
-          setShowAdd(true);
-        }}
-      />
+      <>
+        <PositionDetail
+          symbol={detailSymbol}
+          txs={txs}
+          quote={quotes[detailSymbol]}
+          onBack={() => setDetailSymbol(null)}
+          onRemoveLot={removeLot}
+          onEditLot={(lot) => setEditLot(lot)}
+          onAddLot={() => {
+            setDetailSymbol(null);
+            setShowAdd(true);
+          }}
+        />
+        {editLot && (
+          <EditLotSheet
+            lot={editLot}
+            onClose={() => setEditLot(null)}
+            onSave={(lotId, updates) => {
+              updateLot(lotId, updates);
+              setEditLot(null);
+            }}
+          />
+        )}
+      </>
     );
   }
 
