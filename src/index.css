@@ -1,0 +1,34 @@
+:root {
+  --bg: oklch(0.118 0.014 284);
+  --card: oklch(0.16 0.012 284 / 0.6);
+  --card-border: oklch(0.25 0.01 284 / 0.4);
+  --text: oklch(0.92 0.004 284);
+  --text-dim: oklch(0.6 0.004 284);
+  --lime: oklch(0.82 0.19 124);
+  --lime-dim: oklch(0.82 0.19 124 / 0.15);
+  --red: oklch(0.65 0.21 25);
+  --red-dim: oklch(0.65 0.21 25 / 0.15);
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Geist Variable", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+#root {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px 16px 120px;
+  min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  #root { max-width: 720px; padding: 24px 24px 120px; }
+}
