@@ -53,6 +53,7 @@ export const CRYPTO_SYMBOLS = [
   { symbol: "BINANCE:OPUSDT", label: "OP", name: "Optimism", cmcId: 24178 },
   { symbol: "BINANCE:INJUSDT", label: "INJ", name: "Injective", cmcId: 20887 },
   { symbol: "BINANCE:SUIUSDT", label: "SUI", name: "Sui", cmcId: 20947 },
+  { symbol: "BINANCE:ZECUSDT", label: "ZEC", name: "Zcash", cmcId: 328 },
 ];
 
 // Build CMC CDN icon URL for a symbol or cmcId
