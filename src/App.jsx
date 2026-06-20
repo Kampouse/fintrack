@@ -108,6 +108,7 @@ export default function App() {
   const [txs, setTxs] = useState(loadTransactions);
   const [quotes, setQuotes] = useState({});
   const [showAdd, setShowAdd] = useState(false);
+  const [preselectSymbol, setPreselectSymbol] = useState(null);
   const [detailSymbol, setDetailSymbol] = useState(null);
   const [editLot, setEditLot] = useState(null);
 
@@ -186,6 +187,7 @@ export default function App() {
           onRemoveLot={removeLot}
           onEditLot={(lot) => setEditLot(lot)}
           onAddLot={() => {
+            setPreselectSymbol(detailSymbol);
             setDetailSymbol(null);
             setShowAdd(true);
           }}
@@ -316,12 +318,16 @@ export default function App() {
       </div>
       {showAdd && (
         <AddSheet
-          onClose={() => setShowAdd(false)}
+          onClose={() => {
+            setShowAdd(false);
+            setPreselectSymbol(null);
+          }}
           onSave={(sym, qty, price) => {
             addLot(sym, qty, price);
             setShowAdd(false);
+            setPreselectSymbol(null);
           }}
-          preselect={null}
+          preselect={preselectSymbol}
         />
       )}
       {editLot && (
