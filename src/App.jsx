@@ -375,23 +375,7 @@ function PositionCard({ pos, onClick }) {
           minWidth: 0,
         }}
       >
-        <div
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "50%",
-            background: "var(--lime-dim)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "13px",
-            fontWeight: 700,
-            color: "var(--lime)",
-            flexShrink: 0,
-          }}
-        >
-          {label.slice(0, 4)}
-        </div>
+        <TokenIcon symbol={pos.symbol} size={36} />
         <div style={{ minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span style={{ fontSize: "15px", fontWeight: 600 }}>{label}</span>
@@ -487,22 +471,7 @@ function PositionDetail({
           <ChevronLeft size={18} color="var(--text)" />
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              background: "var(--lime-dim)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-              fontWeight: 700,
-              color: "var(--lime)",
-            }}
-          >
-            {label.slice(0, 4)}
-          </div>
+          <TokenIcon symbol={symbol} size={32} />
           <h1 style={{ fontSize: "20px", fontWeight: 600 }}>{label}</h1>
         </div>
       </div>
