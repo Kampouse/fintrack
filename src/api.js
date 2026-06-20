@@ -1,4 +1,4 @@
-const FINNHUB_KEY = "REDACTED";
+export const FINNHUB_KEY = import.meta.env.VITE_FINNHUB_KEY || "";
 const BASE = "https://finnhub.io/api/v1";
 
 export async function getQuote(symbol) {

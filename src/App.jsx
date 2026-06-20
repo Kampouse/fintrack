@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Plus, X, TrendingUp, ChevronLeft, Trash2, Pencil } from "lucide-react";
-import { getQuote, getQuotes, CRYPTO_SYMBOLS, tokenIcon } from "./api.js";
+import { getQuote, getQuotes, CRYPTO_SYMBOLS, tokenIcon, FINNHUB_KEY } from "./api.js";
 
 const TX_KEY = "fintrack_transactions";
 const OLD_KEY = "fintrack_positions"; // migrate from old format
@@ -131,11 +131,83 @@ export default function App() {
     setQuotes(data);
   }, [symbols]);
 
+  // Initial REST fetch for day-change/open/high (WS doesn't provide these)
   useEffect(() => {
     refreshQuotes();
-    const interval = setInterval(refreshQuotes, 30000);
+  }, [refreshQuotes]);
+
+  // Re-fetch REST quotes every 5 min (to refresh day-change, open, high, low)
+  useEffect(() => {
+    const interval = setInterval(refreshQuotes, 300000);
     return () => clearInterval(interval);
   }, [refreshQuotes]);
+
+  // --- WebSocket: live price ticks from Finnhub ---
+  useEffect(() => {
+    if (symbols.length === 0) return;
+    const wsUrl = `wss://ws.finnhub.io?token=${FINNHUB_KEY}`;
+    const ws = new WebSocket(wsUrl);
+    let reconnectTimer;
+
+    ws.onopen = () => {
+      symbols.forEach((sym) => {
+        ws.send(JSON.stringify({ type: "subscribe", symbol: sym }));
+      });
+    };
+
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (msg.type === "trade" && msg.data) {
+        // Take the latest trade per symbol from the batch
+        const latest = {};
+        for (const trade of msg.data) {
+          latest[trade.s] = trade.p;
+        }
+        // Merge live price into existing quotes (keep REST-derived fields)
+        setQuotes((prev) => {
+          const next = { ...prev };
+          for (const [sym, price] of Object.entries(latest)) {
+            const existing = next[sym] || {};
+            const prevPrice = existing.price ?? price;
+            next[sym] = {
+              ...existing,
+              price,
+              // Recalculate change relative to prevClose
+              change: existing.prevClose != null ? price - existing.prevClose : existing.change,
+              changePct:
+                existing.prevClose != null && existing.prevClose !== 0
+                  ? ((price - existing.prevClose) / existing.prevClose) * 100
+                  : existing.changePct,
+            };
+          }
+          return next;
+        });
+      }
+    };
+
+    ws.onclose = () => {
+      // Reconnect after 3s if we still have positions
+      reconnectTimer = setTimeout(() => {
+        // Trigger re-render → this effect re-runs
+        // eslint-disable-next-line
+        window.dispatchEvent(new Event("finhub-ws-reconnect"));
+      }, 3000);
+    };
+
+    ws.onerror = () => {
+      ws.close();
+    };
+
+    return () => {
+      clearTimeout(reconnectTimer);
+      if (ws.readyState === WebSocket.OPEN) {
+        symbols.forEach((sym) => {
+          ws.send(JSON.stringify({ type: "unsubscribe", symbol: sym }));
+        });
+      }
+      ws.close();
+    };
+  }, [symbols]);
 
   // --- enrich positions with live marks ---
   const enriched = positions.map((p) => {
